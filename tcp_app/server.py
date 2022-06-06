@@ -1,35 +1,42 @@
 import socketserver
+import test_pb2 as proto
+import struct
 
 class Server(socketserver.BaseRequestHandler):
-    """A simple server that accepts client connections."""
+    """A simple server that accepts client connections. The read_buffer specifies how to read the protobuf-encoded messages"""
 
     def handle(self):
         """Test handler. This function needs to be overwritten in order for the communication to be customized."""
-        self.data = self.request.recv(1024).strip()
-        print('{} wrote:'.format(self.client_address[0]))
-        print(self.data)
-        self.request.sendall(self.data.upper())  
-        
-    # def run_server(self):
-    #     """Tries to listen for client connections and receive data continuously."""
-    #     self.socket.listen(1)
-    #     connection, address = self.socket.accept()
-    #     while True:
-    #         try:
-    #             data = connection.recv(1024)
+        # the number 4096 is arbitrary. This is the maximum size to be received in a buffer
+        self.data = self.request.recv(4096).strip()
+        print('{} wrote: {}'.format(self.client_address,Server.read_buffer(self.data)))
+        self.request.sendall(b'Received your message.')
 
-    #             if not data:break
-    #             print('Client says:' + data)
-    #             connection.sendall('Server says:hi')
-    #         except socket.error as e:
-    #             print('Error occurred:' + str(e))
-    #             break
-    #     connection.close()
+    @staticmethod
+    def read_buffer(buffer):
+        """Reads a protobuf-encoded message"""
+
+        # Read the first 8 Bytes (unsigned long) to find out the length of the message
+        # in python 3, int() should handle longints automatically
+        # print(buffer)
+        length = int.from_bytes(buffer[0:4],'big')
+        # Try unpacking all the following bytes at once
+        payload = buffer[4:4+length]
+        log_message = proto.LogMessage()
+        message = log_message.ParseFromString(payload)
+        # print(log_message)
+        return(log_message)
+
+
 
 HOST = 'localhost'
 PORT = 9999
 
 if __name__ == '__main__':
+    # testing formatting of bytes
+    # data = b'\n\x05ERROR\x12\x04main\x1a\x06\x13]\xcbBq\xdf"\x16Insufficient resources'
+    # data = struct.pack('>L',len(data)) + data
+    # print(Server.read_buffer(data))
 
     # Create server at the defined port on localhost
     with socketserver.TCPServer((HOST,PORT),Server) as server:

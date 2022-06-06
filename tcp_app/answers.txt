@@ -1,0 +1,19 @@
+# Here are my answers to the questions in the pdf:
+
+1. I can estimate each line with the O-Notation and then combine the estimation for the whole program. I can simulate multiple clients and measure the CPU usage and memory consumption via terminal.
+2. I select third-party libraries based on the following criteria:
+    - does the library solve my problem?
+    - is the library secure?
+    - is the support for the library guaranteed or soon to be deprecated?
+    - are there more efficient implementations?
+3. Pros:
+    - scalable
+    - secure (docker containers are isolated from each other and placed in a sandbox)
+    - standardized for all users
+    - works well with other tools (e.g. Jenkins)
+   Cons:
+    - overhead (docker needs some setup, and also the run speed of an application decreases when running in a container.)
+    - 
+4. I have an idea: Use delta compression for sending patches. Let the application run on the station while downloading. Have multiple nodes that can run the application. One node can update while another runs.
+5. I have never worked with databases before, but after reading a bit I found that people often send multiple queries with a single request each instead of batching queries.
+    If that was the case, I would group multiple queries together into a single query for multiple items.

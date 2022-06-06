@@ -1,36 +1,26 @@
 """The client module is only here for testing if the server does what is required."""
 import socket
-
-
-# class Client():
-#     """A simple client to connect to the server and send messages."""
-
-#     def __init__(self,port):
-#         self.host = socket.gethostname()
-#         self.port = port
-#         # SOCK_STREAM -> TCP socket
-#         self.socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        
-#     def connect_to_server(self):
-#         self.socket.connect((self.host,self.port))
-#         self.socket.sendall(b'Hello World')
-#         data = self.socket.recv(1024)
-
+import struct
+from message_generator import ProtobufWriter
 
 HOST = 'localhost'
 PORT = 9999
-data=b'Hello World'
 
-# if __name__ == '__main__':
-#     client = Client(PORT)
+# What to simulate:
+# up to 100 clients (have to look into how to simulate this)
+# Send multiple messages with arbitrarily long pauses in between
+# Either close at arbitrary times, even while sending a message
+# stay open forever and keep sending
 
-#     client.connect_to_server()
 
 with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as sock:
     sock.connect((HOST,PORT))
-    sock.sendall(bytes(str(data) + '\n','utf-8'))
+    payload = ProtobufWriter.encode_info()
+    sent_data = struct.pack('>L',len(payload)) + payload
+    sock.sendall(sent_data)
+    print(sent_data)
 
     received = str(sock.recv(1024),'utf-8')
 
-print('Sent: {}'.format(data))
+print('Sent: {}'.format(payload))
 print('Received: {}'.format(received))
